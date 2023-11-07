@@ -1,0 +1,141 @@
+<form name="container-form" class="mt-4" method="post" action="/courses/handle-form-trash-actions">
+    <div class="title-trash">
+        <h1>Thùng rác</h1>
+        <div class="come-back">
+            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-left"
+                class="svg-inline--fa fa-chevron-left " role="img" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 320 512">
+                <path fill="red"
+                    d="M224 480c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25l192-192c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25L77.25 256l169.4 169.4c12.5 12.5 12.5 32.75 0 45.25C240.4 476.9 232.2 480 224 480z">
+                </path>
+            </svg>
+            <a href="/me/stored/courses" class="title_trash">Quay lại</a>
+        </div>
+    </div>
+    <p><b>{{courses.length}}</b> Bài đăng trong thùng rác</p>
+    <div class="checkbox-selected mb-4 d-flex align-items-center">
+            <input type="checkbox" id="checkbox-all" name="" value="">
+            <label for="checkbox-all"> Chọn tất cả </label><br>
+            <select class="form-select form-select-all-option" aria-label=".form-select-lg example" name="action"
+                required>
+                <option selected value="">-- Chọn --</option>
+                <option value="restoreAll">Khôi phục tất cả</option>
+                <option value="forceDelete">Xóa tất cả</option>
+
+            </select>
+            <button class="btn btn-primary btn-submit-checkall disabled">Thực hiện</button>
+        </div>
+    <div class="row">
+        {{#each courses}}
+        <div class="col-sm-6 col-lg-4">
+            <div class="card card-courses-item">
+                <a href="/courses/{{this.slug}}">
+                    <img src="{{this.image}}" class="card-img-top" alt="{{this.name}}">
+                </a>
+                <div class="card-body">
+                    <a href="/courses/{{this.slug}}">
+                        <h5 class="card-title">{{this.name}}</h5>
+                    </a>
+                    <p class="card-text">{{this.description}}</p>
+                    <div class="edit-remove-course">
+                         <input type="checkbox" id="vehicle1" name="courseIds[]" value="{{this._id}}"
+                            class="form-checkbox-courses">
+                        <div class="tools-course">
+                        <a href="" class="btn btn-warning btn-restore" data-id="{{this._id}}"><i class="fa-regular fa-window-restore"></i> Khôi phục</a>
+                        <a href="" class="btn btn-danger" data-id="{{this._id}}" data-bs-toggle="modal"
+                            data-bs-target="#delete-course-modal"><i class="fa-regular fa-trash-can"></i> Xóa vĩnh viễn</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{else}}
+        <p>Danh sách xóa trống <a href="/me/stored/courses" class="">Danh sách khóa học</a></p>
+        {{/each}}
+    </div>
+</form>
+
+{{!------- Form Delete Comfirm --------}}
+<div id="delete-course-modal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xóa Khóa học ?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Hành động này không thể khôi phục .Bạn có thật sự muốn xóa khóa học này không ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="btn-delete-course">Xóa Vĩnh Viễn</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{{!-----delete form-----}}
+<form name="delete-course-form" method="POST"></form>
+
+
+{{!-----restore form-----}}
+<form name="restore-course-form" method="POST"></form>
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var courseId;
+        var deleteForm = document.forms['delete-course-form'];
+        var restoreForm = document.forms['restore-course-form'];
+        var btnDeleteCourse = document.getElementById('btn-delete-course');
+        var restoreBtn = $('.btn-restore');
+        var checkboxAll=$('#checkbox-all');
+        var btnCheckAll=$('.btn-submit-checkall');
+        var courseItemCheckbox = $("input[name='courseIds[]']");
+
+        $('#delete-course-modal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            courseId = button.data('id');
+        })
+        //btn delete 
+        btnDeleteCourse.addEventListener('click', function () {
+            deleteForm.action = '/courses/' + courseId + '/force?_method=DELETE';
+            deleteForm.submit();
+        });
+        //btn restore 
+        restoreBtn.click(function (e) {
+            e.preventDefault();
+            var courseId = $(this).data('id');
+            restoreForm.action = '/courses/' + courseId + '/restore?_method=PATCH';
+            restoreForm.submit();
+        });
+        //when clicked all checkbox
+        checkboxAll.change(function () {
+            var ischecked = $(this).prop('checked');  
+            courseItemCheckbox.prop('checked', ischecked);
+            submitCheckFormAll()
+        });
+        // when unchecked one item then checkboxall unchecked
+        courseItemCheckbox.change(function () {
+            var isCheckAll = courseItemCheckbox.length === $("input[name='courseIds[]']:checked").length;
+            checkboxAll.prop('checked', isCheckAll);
+            submitCheckFormAll()
+        })
+        // when cliked one itemcheckbox or checkboxall 
+        function submitCheckFormAll(){
+            var checkedCount =  $("input[name='courseIds[]']:checked").length;
+            if (checkedCount){
+                btnCheckAll.removeClass('disabled');
+            }else{
+                btnCheckAll.addClass('disabled');
+            }
+
+        }
+
+    });
+</script>

@@ -9,16 +9,22 @@ h1 {
   font-size: 28px;
 }
 h5{color:$red-color;
-text-transform: uppercase;
-
+  text-transform: uppercase;
+  
 }
 a{text-decoration: none;}
+a:hover{
+  color: #bb2d3b;
+}
 .dropdown-toggle::after{display:none;}
 .dropdown-menu{
   border-radius: 10px;
   padding: 8px 10px;
   min-height:350px;
   left: -175px!important;
+}
+.title-header{
+  color: #242424;
 }
 .item-user{display: flex;}
 
@@ -53,10 +59,48 @@ a{text-decoration: none;}
 .edit-remove-course{
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 .btn-danger{
   font-weight: 600;
 }
 .btn-warning{
   font-weight: 600;
+}
+
+
+.title-trash{
+display: flex;
+justify-content: space-between;
+}
+.come-back{
+  display: flex;
+  align-items: center;
+}
+.come-back:hover .fa-chevron-left{
+  transform: translateX(-4px);
+}
+.fa-chevron-left{
+  width: 10px;
+  height: 15px;
+  margin-right: 4px;
+  transition: .3s ease;
+}
+.title_trash{
+  text-transform: uppercase;
+  font-weight: 700; 
+  color: red;
+}
+
+.form-select-all-option{
+  width: 300px;
+  margin: 0 8px;
+}
+.form-checkbox{
+  
+}
+.form-checkbox-courses{
+  
+  width: 30px;
+  height: 30px;
 }
